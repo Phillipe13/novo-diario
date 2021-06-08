@@ -1,7 +1,7 @@
 import React from 'react'
 
 
-export default ()=><div>
+export default () => <div>
   <h2>Sobre o Diário Digital</h2>
   <br/>
     <img src={require('../diario.jpg')}  alt="imagem de um Diário"/>

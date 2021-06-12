@@ -1,84 +1,43 @@
 import React from 'react';
-import { Formik } from 'formik';
-import { Redirect, useHistory} from 'react-router-dom';
-import authService from './AuthService';
+import { useForm } from "react-hook-form";
+import { Redirect } from 'react-router-dom';
 
 const LoginForm = () => {
-
-  const history = useHistory();
-
-    const handleClick = () => {
-        history.push("/dashboard/signup");
+  const { register, handleSubmit } = useForm();
+  const onSubmit = (data) =>{
+    console.log(data)
+    const req = new XMLHttpRequest();
+    req.open('POST','https://fast-badlands-00990.herokuapp.com/api/v1/login')
+    req.setRequestHeader('Content-Type','application/json');
+    req.send(`{"username":"${data.username}","password":"${data.password}"}`)
+    req.onload=()=>{
+      console.log(req.status)
+      if(req.status==200){
+        alert("logged!!!")
+        window.location.href='/'
+      }else{
+          alert("status: "+req.status);
+      }
     }
-  
-  return(
+  };
+  const redirect = ()=>{
+    window.location.href="/dashboard/signup"
+  }
+  return (
+    <><h1>Login</h1>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <input {...register("username")} placeholder="Digite seu usuário" />
+        <input {...register("password")} placeholder="Digite sua senha" />
+        
 
-  <div>
-    <h1>Login</h1>
-    <Formik
-      initialValues={{ user: '', password: '' }}
-      initialStatus={{isRedirectToVerifyPage: false}}
-      validate={values => {
-        const errors = {};
-        if (!values.user) {
-          errors.user = 'Login is Required';
-        }
-        return errors;
-      }}
-      onSubmit={(values, { setSubmitting, setStatus }) => {
-        setTimeout(() => {
-          if (authService.isValidPassword(values.user, values.password)) {
-            setStatus({isRedirectToVerifyPage: true});
-          }
-          setSubmitting(false);
-        }, 400);
-      }}
-    >
-      {({
-          values,
-          errors,
-          touched,
-          status,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          isSubmitting,
-        }) => (
-        <form onSubmit={handleSubmit}>
-          {
-            status.isRedirectToVerifyPage ? <Redirect to={{
-              pathname: "/verify",
-              search: `?user=${values.user}`,
-            }} /> : null
-          }
-          <input
-            type="text"
-            name="user"
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={values.user}
-            placeholder="Digite seu usuário"
-          />
-          {errors.user && touched.user && errors.user}
-          <input
-            type="password"
-            name="password"
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={values.password}
-            placeholder="Digite sua senha" 
-          />
-          {errors.password && touched.password && errors.password}
-          <button type="submit" disabled={isSubmitting}>
-            Submit
-          </button>
-        </form>
-      )}
-    </Formik>
-    <div>
-      <button onClick={handleClick} type="button" >Registre-se!</button>
-    </div>
-  </div>
-);}
+        <input type="submit" />
+      </form>
+      <div>
+        <button onClick={redirect} type="button" >Registre-se!</button>
+      </div>
+    </>
+    
+  )
+}
 
 export default LoginForm;
